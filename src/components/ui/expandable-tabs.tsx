@@ -1,125 +1,90 @@
 "use client";
 
 import * as React from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import { motion } from "framer-motion";
 import { useOnClickOutside } from "usehooks-ts";
 import { cn } from "@/lib/utils";
-import { LucideIcon } from "lucide-react";
 
-interface Tab {
+export type TabItem = {
   title: string;
-  icon: LucideIcon;
-  type?: never;
-}
-
-interface Separator {
-  type: "separator";
-  title?: never;
-  icon?: never;
-}
-
-type TabItem = Tab | Separator;
+  icon: React.ComponentType;
+};
 
 interface ExpandableTabsProps {
   tabs: TabItem[];
   className?: string;
-  activeColor?: string;
   onChange?: (index: number | null) => void;
 }
-
-const buttonVariants = {
-  initial: {
-    gap: 0,
-    paddingLeft: ".5rem",
-    paddingRight: ".5rem",
-  },
-  animate: (isSelected: boolean) => ({
-    gap: isSelected ? ".5rem" : 0,
-    paddingLeft: isSelected ? "1rem" : ".5rem",
-    paddingRight: isSelected ? "1rem" : ".5rem",
-  }),
-};
-
-const spanVariants = {
-  initial: { width: 0, opacity: 0 },
-  animate: { width: "auto", opacity: 1 },
-  exit: { width: 0, opacity: 0 },
-};
-
-const transition = { delay: 0.1, type: "spring", bounce: 0, duration: 0.6 };
 
 export function ExpandableTabs({
   tabs,
   className,
-  activeColor = "text-primary",
   onChange,
 }: ExpandableTabsProps) {
   const [selected, setSelected] = React.useState<number | null>(null);
-  const outsideClickRef = React.useRef(null);
+  const outsideClickRef = React.useRef<HTMLDivElement>(null);
 
-  useOnClickOutside(outsideClickRef, () => {
-    setSelected(null);
-    onChange?.(null);
-  });
+  React.useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (outsideClickRef.current && !outsideClickRef.current.contains(event.target as Node)) {
+        setSelected(null);
+        onChange?.(null);
+      }
+    };
 
-  const handleSelect = (index: number) => {
-    setSelected(index);
-    onChange?.(index);
-  };
-
-  const Separator = () => (
-    <div className="mx-2 h-5 w-[1px] bg-border/30" aria-hidden="true" suppressHydrationWarning />
-  );
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [onChange]);
 
   return (
     <div
       ref={outsideClickRef}
       className={cn(
-        "inline-flex items-center justify-center gap-1.5 rounded-full border bg-background/95 px-3 py-2 shadow-sm",
+        "relative flex items-center gap-2 rounded-full border p-2",
         className
       )}
-      suppressHydrationWarning
     >
       {tabs.map((tab, index) => {
-        if (tab.type === "separator") {
-          return <Separator key={`separator-${index}`} />;
-        }
-
+        const isSelected = selected === index;
         const Icon = tab.icon;
+
         return (
-          <motion.button
-            key={tab.title}
-            variants={buttonVariants}
-            initial={false}
-            animate="animate"
-            custom={selected === index}
-            onClick={() => handleSelect(index)}
-            transition={transition}
+          <button
+            key={index}
             className={cn(
-              "relative flex items-center rounded-full px-3 py-1.5 text-sm font-medium transition-colors duration-300",
-              selected === index
-                ? cn("bg-muted", activeColor)
-                : "text-muted-foreground hover:bg-muted hover:text-foreground"
+              "relative z-10 flex items-center gap-2 rounded-full p-2 text-sm font-medium transition-colors",
+              isSelected
+                ? "text-foreground"
+                : "hover:text-foreground text-muted-foreground"
             )}
-            suppressHydrationWarning
+            onClick={() => {
+              setSelected(isSelected ? null : index);
+              onChange?.(isSelected ? null : index);
+            }}
           >
-            <Icon size={20} />
-            <AnimatePresence initial={false}>
-              {selected === index && (
-                <motion.span
-                  variants={spanVariants}
-                  initial="initial"
-                  animate="animate"
-                  exit="exit"
-                  transition={transition}
-                  className="overflow-hidden"
-                  suppressHydrationWarning
-                >
-                  {tab.title}
-                </motion.span>
+            <Icon />
+            <span
+              className={cn(
+                "pointer-events-none inline-block select-none transition-opacity duration-200",
+                isSelected ? "opacity-100" : "opacity-0"
               )}
-            </AnimatePresence>
-          </motion.button>
+            >
+              {tab.title}
+            </span>
+            {isSelected && (
+              <motion.div
+                layoutId="expandable-tab"
+                className="absolute inset-0 z-[-1] rounded-full bg-muted"
+                transition={{
+                  type: "spring",
+                  bounce: 0.15,
+                  duration: 0.5,
+                }}
+              />
+            )}
+          </button>
         );
       })}
     </div>
