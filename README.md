@@ -1,6 +1,19 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Learners Platform
 
-## Getting Started
+A modern learning platform built with Next.js, featuring:
+- Beautiful tubelight navigation
+- Responsive design for mobile and desktop
+- Modern UI components
+- Framer Motion animations
+
+## Tech Stack
+- Next.js 14
+- TypeScript
+- Tailwind CSS
+- Framer Motion
+- Lucide Icons
+
+## Development
 
 First, run the development server:
 
@@ -10,13 +23,12 @@ npm run dev
 yarn dev
 # or
 pnpm dev
-# or
-bun dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Live Site
+Visit the live site at [https://learners69.github.io/Learners](https://learners69.github.io/Learners)
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
