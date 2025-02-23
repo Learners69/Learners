@@ -5,6 +5,8 @@ const nextConfig = {
     unoptimized: true,
   },
   basePath: '/Learners',
+  assetPrefix: '/Learners/',
+  trailingSlash: true,
   eslint: {
     ignoreDuringBuilds: true,
   },
